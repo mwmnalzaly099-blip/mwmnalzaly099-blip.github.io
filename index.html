@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>تعلّم الإنجليزية والفرنسية والألمانية</title>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#F6F8FB;--ink:#16202E;--blue:#1F4FD8;--mint:#12B886;--line:#DCE2EC;--card:#fff}
+*{box-sizing:border-box;margin:0}
+body{font-family:Tajawal,sans-serif;background:var(--bg);color:var(--ink);line-height:1.7}
+header{background:var(--ink);color:#fff;padding:16px 18px;text-align:center}
+header h1{font-size:22px;font-weight:800}
+header p{font-size:14px;opacity:.75}
+.wrap{max-width:640px;margin:auto;padding:16px 16px 50px}
+.tabs{display:flex;gap:8px;margin-bottom:12px;overflow-x:auto}
+.tabs button{flex:1;border:1px solid var(--line);background:var(--card);border-radius:12px;padding:10px 14px;font:inherit;font-weight:500;cursor:pointer;white-space:nowrap}
+.tabs button.on{background:var(--blue);color:#fff;border-color:var(--blue)}
+.sub button{flex:none;border-radius:20px;padding:6px 16px}
+.sub button.on{background:var(--ink);border-color:var(--ink)}
+.item{display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:8px}
+.ar{color:#55627a}
+.tg{font-weight:800;font-size:19px;direction:ltr;text-align:left}
+.sp{border:0;background:#E7EEFF;color:var(--blue);border-radius:50%;width:40px;height:40px;font-size:18px;cursor:pointer;flex:none}
+.go{display:block;width:100%;margin-top:14px;border:0;background:var(--mint);color:#fff;border-radius:12px;padding:13px;font:inherit;font-weight:800;font-size:17px;cursor:pointer}
+#quiz{display:none}
+#quiz .q{font-size:24px;font-weight:800;text-align:center;margin:18px 0}
+.opt{display:block;width:100%;text-align:left;direction:ltr;border:1px solid var(--line);background:var(--card);border-radius:12px;padding:12px 14px;margin-bottom:8px;font:inherit;font-size:18px;cursor:pointer}
+.opt.ok{background:#D3F9E8;border-color:var(--mint)}
+.opt.no{background:#FFE0E0;border-color:#E03131}
+.score{text-align:center;color:#55627a}
+.back{border:0;background:none;color:var(--blue);font:inherit;cursor:pointer;margin-bottom:8px}
+.gr{margin-bottom:20px}.gr h3{font-size:18px;font-weight:800;margin:6px 0 2px}.gr p{color:#55627a;margin-bottom:8px}
+:focus-visible{outline:3px solid var(--mint);outline-offset:2px}
+</style>
+</head>
+<body>
+<header><h1>تعلّم لغة جديدة</h1><p>اضغط على 🔊 عشان تسمع النطق</p></header>
+<div class="wrap">
+<div id="learn">
+  <div class="tabs" id="langs"></div>
+  <div class="tabs sub" id="cats"></div>
+  <div id="list"></div>
+  <button class="go" id="start">ابدأ اختبار</button>
+</div>
+<div id="quiz">
+  <button class="back" id="back">رجوع للدروس</button>
+  <div class="score" id="score"></div>
+  <div class="q" id="q"></div>
+  <div id="opts"></div>
+</div>
+</div>
+
+<script>
+// ===== عدّل أو زوّد كلمات هنا: [العربي, الكلمة] =====
+const D={
+ en:{n:"الإنجليزية",v:"en-US",c:{
+  "تحيات":[["مرحبا","Hello"],["صباح الخير","Good morning"],["مساء الخير","Good evening"],["شكرا","Thank you"],["من فضلك","Please"],["مع السلامة","Goodbye"]],
+  "أرقام":[["واحد","One"],["اثنان","Two"],["ثلاثة","Three"],["أربعة","Four"],["خمسة","Five"],["ستة","Six"],["سبعة","Seven"],["ثمانية","Eight"],["تسعة","Nine"],["عشرة","Ten"]],
+  "جمل مفيدة":[["اسمي ...","My name is ..."],["كم الساعة؟","What time is it?"],["أنا لا أفهم","I don't understand"],["أين الحمام؟","Where is the bathroom?"],["كم السعر؟","How much is it?"],["هل تتكلم العربية؟","Do you speak Arabic?"]],
+  "ألوان":[["أحمر","Red"],["أزرق","Blue"],["أخضر","Green"],["أصفر","Yellow"],["أسود","Black"],["أبيض","White"],["برتقالي","Orange"],["وردي","Pink"]],
+  "أكل":[["خبز","Bread"],["ماء","Water"],["لحم","Meat"],["دجاج","Chicken"],["سمك","Fish"],["أرز","Rice"],["تفاحة","Apple"],["حليب","Milk"]],
+  "عائلة":[["أب","Father"],["أم","Mother"],["أخ","Brother"],["أخت","Sister"],["ابن","Son"],["ابنة","Daughter"],["جد","Grandfather"],["جدة","Grandmother"]],
+  "أيام":[["السبت","Saturday"],["الأحد","Sunday"],["الاثنين","Monday"],["الثلاثاء","Tuesday"],["الأربعاء","Wednesday"],["الخميس","Thursday"],["الجمعة","Friday"]],
+  "أسئلة":[["ماذا؟","What?"],["من؟","Who?"],["أين؟","Where?"],["متى؟","When?"],["لماذا؟","Why?"],["كيف؟","How?"]],
+  "أفعال":[["يأكل","Eat"],["يشرب","Drink"],["يذهب","Go"],["يريد","Want"],["يحب","Love"],["يتعلّم","Learn"]]}},
+ fr:{n:"الفرنسية",v:"fr-FR",c:{
+  "تحيات":[["مرحبا","Bonjour"],["مساء الخير","Bonsoir"],["شكرا","Merci"],["من فضلك","S'il vous plaît"],["مع السلامة","Au revoir"],["كيف حالك؟","Comment ça va ?"]],
+  "أرقام":[["واحد","Un"],["اثنان","Deux"],["ثلاثة","Trois"],["أربعة","Quatre"],["خمسة","Cinq"],["ستة","Six"],["سبعة","Sept"],["ثمانية","Huit"],["تسعة","Neuf"],["عشرة","Dix"]],
+  "جمل مفيدة":[["اسمي ...","Je m'appelle ..."],["كم الساعة؟","Quelle heure est-il ?"],["أنا لا أفهم","Je ne comprends pas"],["أين الحمام؟","Où sont les toilettes ?"],["كم السعر؟","C'est combien ?"],["هل تتكلم الإنجليزية؟","Parlez-vous anglais ?"]],
+  "ألوان":[["أحمر","Rouge"],["أزرق","Bleu"],["أخضر","Vert"],["أصفر","Jaune"],["أسود","Noir"],["أبيض","Blanc"],["برتقالي","Orange"],["وردي","Rose"]],
+  "أكل":[["خبز","Du pain"],["ماء","De l'eau"],["لحم","De la viande"],["دجاج","Du poulet"],["سمك","Du poisson"],["أرز","Du riz"],["تفاحة","Une pomme"],["حليب","Du lait"]],
+  "عائلة":[["أب","Père"],["أم","Mère"],["أخ","Frère"],["أخت","Sœur"],["ابن","Fils"],["ابنة","Fille"],["جد","Grand-père"],["جدة","Grand-mère"]],
+  "أيام":[["السبت","Samedi"],["الأحد","Dimanche"],["الاثنين","Lundi"],["الثلاثاء","Mardi"],["الأربعاء","Mercredi"],["الخميس","Jeudi"],["الجمعة","Vendredi"]],
+  "أسئلة":[["ماذا؟","Quoi ?"],["من؟","Qui ?"],["أين؟","Où ?"],["متى؟","Quand ?"],["لماذا؟","Pourquoi ?"],["كيف؟","Comment ?"]],
+  "أفعال":[["يأكل","Manger"],["يشرب","Boire"],["يذهب","Aller"],["يريد","Vouloir"],["يحب","Aimer"],["يتعلّم","Apprendre"]]}},
+ de:{n:"الألمانية",v:"de-DE",c:{
+  "تحيات":[["مرحبا","Hallo"],["صباح الخير","Guten Morgen"],["مساء الخير","Guten Abend"],["شكرا","Danke"],["من فضلك","Bitte"],["مع السلامة","Auf Wiedersehen"]],
+  "أرقام":[["واحد","Eins"],["اثنان","Zwei"],["ثلاثة","Drei"],["أربعة","Vier"],["خمسة","Fünf"],["ستة","Sechs"],["سبعة","Sieben"],["ثمانية","Acht"],["تسعة","Neun"],["عشرة","Zehn"]],
+  "جمل مفيدة":[["اسمي ...","Ich heiße ..."],["كم الساعة؟","Wie spät ist es?"],["أنا لا أفهم","Ich verstehe nicht"],["أين الحمام؟","Wo ist die Toilette?"],["كم السعر؟","Wie viel kostet das?"],["هل تتكلم الإنجليزية؟","Sprechen Sie Englisch?"]],
+  "ألوان":[["أحمر","Rot"],["أزرق","Blau"],["أخضر","Grün"],["أصفر","Gelb"],["أسود","Schwarz"],["أبيض","Weiß"],["برتقالي","Orange"],["وردي","Rosa"]],
+  "أكل":[["خبز","Brot"],["ماء","Wasser"],["لحم","Fleisch"],["دجاج","Hähnchen"],["سمك","Fisch"],["أرز","Reis"],["تفاحة","Apfel"],["حليب","Milch"]],
+  "عائلة":[["أب","Vater"],["أم","Mutter"],["أخ","Bruder"],["أخت","Schwester"],["ابن","Sohn"],["ابنة","Tochter"],["جد","Großvater"],["جدة","Großmutter"]],
+  "أيام":[["السبت","Samstag"],["الأحد","Sonntag"],["الاثنين","Montag"],["الثلاثاء","Dienstag"],["الأربعاء","Mittwoch"],["الخميس","Donnerstag"],["الجمعة","Freitag"]],
+  "أسئلة":[["ماذا؟","Was?"],["من؟","Wer?"],["أين؟","Wo?"],["متى؟","Wann?"],["لماذا؟","Warum?"],["كيف؟","Wie?"]],
+  "أفعال":[["يأكل","Essen"],["يشرب","Trinken"],["يذهب","Gehen"],["يريد","Wollen"],["يحب","Lieben"],["يتعلّم","Lernen"]]}}
+};
+const G={
+ en:[
+  {t:"فعل الكينونة: am / is / are",d:"I am = أنا. he / she / it is = هو / هي. we / you / they are = نحن / أنتم / هم.",e:[["I am a student","أنا طالب"],["She is happy","هي سعيدة"],["They are friends","هم أصدقاء"]]},
+  {t:"الجمع",d:"غالبًا نضيف s في آخر الاسم. وفي كلمات قليلة الجمع مختلف.",e:[["one book, two books","كتاب، كتابان"],["one man, two men","رجل، رجلان"],["one child, two children","طفل، طفلان"]]},
+  {t:"المضارع البسيط",d:"مع he / she / it نضيف s للفعل. مع باقي الضمائر يبقى الفعل زي ما هو.",e:[["I work every day","أنا أشتغل كل يوم"],["He works every day","هو يشتغل كل يوم"],["She drinks tea","هي تشرب شاي"]]},
+  {t:"a و an",d:"نستخدم an قبل الكلمة اللي تبدأ بصوت حرف علة (a, e, i, o, u). وغير كده نستخدم a.",e:[["a book","كتاب"],["an apple","تفاحة"],["an orange","برتقالة"]]},
+  {t:"النفي",d:"نضيف do not (أو don't) قبل الفعل. ومع he / she / it نستخدم does not (أو doesn't).",e:[["I do not like tea","أنا لا أحب الشاي"],["He does not work here","هو لا يشتغل هنا"]]}
+ ],
+ fr:[
+  {t:"فعل être (يكون)",d:"je suis = أنا. tu es = أنت. il / elle est = هو / هي. nous sommes = نحن. vous êtes = أنتم. ils sont = هم.",e:[["Je suis étudiant","أنا طالب"],["Elle est contente","هي سعيدة"],["Nous sommes amis","نحن أصدقاء"]]},
+  {t:"المذكر والمؤنث",d:"كل اسم في الفرنسية مذكر أو مؤنث. le / un للمذكر. la / une للمؤنث. les للجمع.",e:[["le livre, un livre","الكتاب، كتاب"],["la table, une table","الطاولة، طاولة"],["les enfants","الأطفال"]]},
+  {t:"فعل avoir (يملك)",d:"j'ai = أنا عندي. tu as. il / elle a. nous avons. vous avez. ils ont.",e:[["J'ai un frère","عندي أخ"],["Elle a une voiture","هي عندها سيارة"],["Nous avons du temps","عندنا وقت"]]},
+  {t:"النفي",d:"نحط الفعل بين ne و pas.",e:[["Je ne parle pas allemand","أنا لا أتكلم الألمانية"],["Il ne mange pas de viande","هو لا يأكل لحم"]]}
+ ],
+ de:[
+  {t:"الأدوات",d:"der للمذكر. die للمؤنث. das للمحايد. die للجمع. لازم تحفظ الكلمة مع أداتها.",e:[["der Mann","الرجل"],["die Frau","المرأة"],["das Kind","الطفل"],["die Kinder","الأطفال"]]},
+  {t:"فعل sein (يكون)",d:"ich bin = أنا. du bist. er / sie / es ist. wir sind. ihr seid. sie sind.",e:[["Ich bin Student","أنا طالب"],["Das ist mein Bruder","ده أخويا"],["Wir sind Freunde","نحن أصدقاء"]]},
+  {t:"ترتيب الجملة",d:"الفعل دايمًا في المركز التاني في الجملة، حتى لو بدأت بكلمة غير الفاعل.",e:[["Ich lerne heute Deutsch","أنا أتعلّم الألماني النهاردة"],["Heute lerne ich Deutsch","النهاردة أتعلّم أنا الألماني"]]},
+  {t:"النفي",d:"nicht لنفي الفعل أو الجملة. kein لنفي الاسم.",e:[["Ich komme nicht","أنا لن آتي"],["Ich habe kein Auto","أنا معنديش سيارة"]]}
+ ]
+};
+// =====================================================
+const $=id=>document.getElementById(id);
+let L="en",C="تحيات",score=0,total=0,ans="";
+function speak(t){
+  try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang=D[L].v;u.rate=.85;speechSynthesis.speak(u)}catch(e){}
+}
+function render(){
+  $("langs").innerHTML=Object.keys(D).map(k=>`<button class="${k===L?"on":""}" data-l="${k}">${D[k].n}</button>`).join("");
+  $("cats").innerHTML=[...Object.keys(D[L].c),"القواعد"].map(c=>`<button class="${c===C?"on":""}" data-c="${c}">${c}</button>`).join("");
+  $("start").style.display=C==="القواعد"?"none":"";
+  if(C==="القواعد"){
+    $("list").innerHTML=G[L].map(g=>`<div class="gr"><h3>${g.t}</h3><p>${g.d}</p>`+g.e.map(x=>`<div class="item"><div><div class="tg">${x[0]}</div><div class="ar">${x[1]}</div></div><button class="sp" data-t="${x[0]}" aria-label="استمع">🔊</button></div>`).join("")+`</div>`).join("");
+    return;
+  }
+  $("list").innerHTML=D[L].c[C].map((p,i)=>`<div class="item"><div><div class="ar">${p[0]}</div><div class="tg">${p[1]}</div></div><button class="sp" data-s="${i}" aria-label="استمع">🔊</button></div>`).join("");
+}
+function all(){return Object.values(D[L].c).flat()}
+function next(){
+  const items=all(),q=items[Math.floor(Math.random()*items.length)];
+  const wrong=items.filter(x=>x[1]!==q[1]).sort(()=>Math.random()-.5).slice(0,3);
+  const opts=[q,...wrong].sort(()=>Math.random()-.5);
+  ans=q[1];
+  $("q").textContent=q[0];
+  $("score").textContent=`النتيجة: ${score} / ${total}`;
+  $("opts").innerHTML=opts.map(o=>`<button class="opt" data-o="${o[1].replace(/"/g,"&quot;")}">${o[1]}</button>`).join("");
+}
+document.addEventListener("click",e=>{
+  const t=e.target,d=t.dataset;
+  if(d.l){L=d.l;render()}
+  if(d.c){C=d.c;render()}
+  if(d.s!==undefined)speak(D[L].c[C][d.s][1]);
+  if(d.t)speak(d.t);
+  if(d.o!==undefined){
+    if(t.classList.contains("ok")||t.classList.contains("no"))return;
+    total++;
+    const right=d.o===ans;
+    if(right)score++;
+    t.classList.add(right?"ok":"no");
+    [...document.querySelectorAll(".opt")].forEach(b=>{if(b.dataset.o===ans)b.classList.add("ok")});
+    speak(ans);
+    setTimeout(next,1400);
+  }
+});
+$("start").onclick=()=>{score=0;total=0;$("learn").style.display="none";$("quiz").style.display="block";next()};
+$("back").onclick=()=>{$("quiz").style.display="none";$("learn").style.display="block"};
+render();
+</script>
+</body>
+</html>
